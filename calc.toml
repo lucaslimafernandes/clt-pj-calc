@@ -1,2 +1,12 @@
 [Entrada]
 salariobruto = 7500
+
+[Impostos]
+das = 0.04
+
+[Recomendados]
+ferias = 0.09
+
+[Reservas]
+emergencia = 100
+
