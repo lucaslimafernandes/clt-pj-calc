@@ -1,0 +1,11 @@
+[project]
+name = "go-migrations"
+version = "0.1.0"
+description = "A CLI tool for managing database migrations."
+
+[developer]
+author = "Lucas Lima Fernandes"
+email = "lucaslimafernandes@proton.me"
+
+[repository]
+url = "https://github.com/lucaslimafernandes/go-migrations"
