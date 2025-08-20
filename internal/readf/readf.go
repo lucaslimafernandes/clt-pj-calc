@@ -8,17 +8,11 @@ import (
 )
 
 type Calculo struct {
-	Entrada struct {
-		SalarioBruto float64
-	}
-	Impostos struct {
-		Das float64
-	}
-	Recomendados struct {
-		Ferias float64
-		Decimo float64
-	}
-	Reservas map[string]interface{}
+	Entrada      map[string]float64
+	Impostos     map[string]float64
+	Obrigacoes   map[string]float64
+	Recomendados map[string]float64
+	Reservas     map[string]float64
 }
 
 func ReadToml() *Calculo {

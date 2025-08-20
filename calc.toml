@@ -2,11 +2,18 @@
 salariobruto = 7500
 
 [Impostos]
-das = 0.04
+simples = 0.06
+inss = 0.033
 
-[Recomendados]
+[Obrigacoes]
+fgts = 0.08
 ferias = 0.09
+adicionalferias = 0.03
+decimoterceiro = 0.09
 
 [Reservas]
-emergencia = 100
+emergencia = 1000
 
+[Beneficios] 
+ValeRefeicao = 1000
+PlanoSaude = 1500
