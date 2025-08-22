@@ -1,3 +1,4 @@
+
 [Entrada]
 salariobruto = 12000.00
 
@@ -20,3 +21,4 @@ emergencia = 1000
 [Beneficios] 
 ValeRefeicao = 1000
 PlanoSaude = 1500
+	
