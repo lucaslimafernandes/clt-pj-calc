@@ -34,6 +34,9 @@ url = "https://github.com/lucaslimafernandes/clt-pj-calc"
 	}
 
 	fmt.Println(*salBrt)
+
+	c := utilities.ReadToml()
+
 	// r := utilities.ReadToml()
 
 	// fmt.Println(*r)
@@ -51,11 +54,11 @@ url = "https://github.com/lucaslimafernandes/clt-pj-calc"
 
 	// calc(r)
 
-	handler(*salBrt)
+	handler(*salBrt, c)
 
 }
 
-func handler(salBrt float64) {
+func handler(salBrt float64, cfg *utilities.Cfg) {
 
 	inssContrib := utilities.CalcINSS(salBrt)
 
@@ -69,57 +72,65 @@ func handler(salBrt float64) {
 	umTercFerias := utilities.Round2(salBrt * 0.03)
 	decimoTerc := utilities.Round2(salBrt * 0.09)
 	fgts := utilities.Round2(salBrt * 0.08)
-	unimed := 1500.00
-	VA := 1000.00
-	contabilidade := 300.00
+	planoSaude := cfg.CustosFixos["planoSaude"]
+	valeRefeicao := cfg.CustosFixos["valeRefeicao"]
+	contabilidade := cfg.CustosFixos["contabilidade"]
 
-	fmt.Println("Férias: ", ferias)
-	fmt.Println("1/3 férias: ", umTercFerias)
-	fmt.Println("Décimo Terc: ", decimoTerc)
-	fmt.Println("FGTS: ", fgts)
+	salLiq := utilities.Round2(salBrt - inssContrib - irpf)
 
-	fmt.Println("Salário Liq: ", utilities.Round2(salBrt-inssContrib-irpf))
+	totalDespesas := ferias + umTercFerias + decimoTerc + fgts + planoSaude + valeRefeicao + contabilidade
 
-	totalDespesas := ferias + umTercFerias + decimoTerc + fgts + unimed + VA + contabilidade
-
-	fmt.Println("Total de despesas PJ: ", totalDespesas)
-	fmt.Println("Fat: ", salBrt+totalDespesas)
-
-}
-
-func Calc(c *utilities.Calculo) {
-
-	// var valorFinal float64
-	var entradas float64
-	var impostos float64
-	// var descontos float64
-	var obrigacoes float64
-
-	// Entrada
-	for _, val := range c.Entrada {
-		entradas += val
-	}
-
-	// Impostos
-	for _, val := range c.Impostos {
-		impostos += val * entradas
-	}
-
-	fmt.Printf("Valor de impostos: %v\n", impostos)
-
-	// Obrigacoes
-	for _, val := range c.Impostos {
-		if val > 1 {
-			obrigacoes += val
+	reservas := 0.0
+	for _, v := range cfg.Reservas {
+		if v <= 1.0 {
+			reservas += salBrt * v
 		} else {
-			_temp := entradas * val
-			obrigacoes += _temp
+			reservas += v
 		}
 	}
 
-	fmt.Printf("Valor obrigacoes: %v\n", obrigacoes)
+	// cfg.Reservas
+	fat := salBrt + totalDespesas
+	liqPJ := fat - totalDespesas
+	impPJ := fat * 0.093
 
-	// Recomendados
-	// Reservas
+	relatorio(salBrt, salLiq, reservas, fat, liqPJ, totalDespesas, impPJ, cfg)
 
+}
+
+func relatorio(salCLT, liqCLT, reservas, fat, liqPJ, custosPJ, impostosPJ float64, cfg *utilities.Cfg) {
+	fmt.Printf(
+		`=== Comparativo CLT x PJ ===
+CLT:
+  Bruto:          R$ %.2f
+  Líquido:        R$ %.2f
+  Reservas eq.:   R$ %.2f  (férias %.2f%%, 1/3 férias %.2f%%, 13º %.2f%%, FGTS %.2f%%)
+  Vale-refeiçãp   R$ %.2f
+  Plano de saúde  R$ %.2f
+
+PJ (alvo: manter Líquido CLT + Reservas):
+  Pro-labore :    R$ %.2f
+  Simples (≈):    %.2f%%
+
+  Faturamento:    R$ %.2f
+  Impostos:       R$ %.2f
+  Custos fixos:   R$ %.2f
+  Líquido PJ:     R$ %.2f
+
+Check:
+  Alvo (Liq CLT + Reservas):  R$ %.2f
+  Diferença:                  R$ %.2f
+
+Cálculo Valor/Hora
+  160hrs		  R$ %.2f por hora
+  168hrs		  R$ %.2f por hora
+`,
+		salCLT, liqCLT, reservas,
+		cfg.Reservas["ferias"]*100, cfg.Reservas["adicionalferias"]*100, cfg.Reservas["decimoterceiro"]*100, cfg.Reservas["fgts"]*100,
+		cfg.CustosFixos["valeRefeicao"], cfg.CustosFixos["planoSaude"],
+		salCLT, cfg.PJ["simples"]*100,
+		fat, impostosPJ, custosPJ, liqPJ,
+		liqCLT+reservas, (liqPJ - (liqCLT + reservas)),
+		fat/160, fat/168,
+	)
 }

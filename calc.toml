@@ -1,22 +1,20 @@
-[Entrada]
-salariobruto = 12000.00
-
-[Impostos]
+[PJ]
 simples = 0.06
+inss = 0.033
 
 [PF]
-dependentes = 1
+dependentes = 1.00
 
-[Obrigacoes]
-prolabore = 8157.41
+[CustosFixos]
+valeRefeicao = 1000.00
+planoSaude = 1500.00
+contabilidade = 300.00
+
+[Reservas]
 fgts = 0.08
 ferias = 0.09
 adicionalferias = 0.03
 decimoterceiro = 0.09
+emergencia = 0.0
 
-[Reservas]
-emergencia = 1000
 
-[Beneficios] 
-ValeRefeicao = 1000
-PlanoSaude = 1500
