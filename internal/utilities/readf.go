@@ -15,15 +15,6 @@ type Cfg struct {
 	Reservas    map[string]float64
 }
 
-// type Calculo struct {
-// 	Entrada      map[string]float64
-// 	Impostos     map[string]float64
-// 	PF           map[string]float64
-// 	Obrigacoes   map[string]float64
-// 	Recomendados map[string]float64
-// 	Reservas     map[string]float64
-// }
-
 func ReadToml() *Cfg {
 
 	var c Cfg
@@ -42,31 +33,29 @@ func ReadToml() *Cfg {
 
 }
 
+// Função para salvar arquivo base calc.toml
 func CreateToml() error {
 
 	archive := `
-[Entrada]
-salariobruto = 12000.00
-
-[Impostos]
+[PJ]
 simples = 0.06
+inss = 0.033
 
 [PF]
-dependentes = 1
+dependentes = 1.00
 
-[Obrigacoes]
-prolabore = 8157.41
+[CustosFixos]
+valeRefeicao = 1000.00
+planoSaude = 1500.00
+contabilidade = 300.00
+
+[Reservas]
 fgts = 0.08
 ferias = 0.09
 adicionalferias = 0.03
 decimoterceiro = 0.09
+emergencia = 0.0
 
-[Reservas]
-emergencia = 1000
-
-[Beneficios] 
-ValeRefeicao = 1000
-PlanoSaude = 1500
 	`
 
 	f, err := os.Create("calc.toml")
