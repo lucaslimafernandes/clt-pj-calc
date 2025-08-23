@@ -40,6 +40,7 @@ func CreateToml() error {
 [PJ]
 simples = 0.06
 inss = 0.033
+prolabore_min = 1412.00
 
 [PF]
 dependentes = 1.00
