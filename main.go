@@ -26,6 +26,7 @@ func main() {
 	help := flag.Bool("help", false, "Show available commands")
 	generate_cfg := flag.Bool("gen-config", false, "Exporta o arquivo de configuração")
 	salBrt := flag.Float64("salario", 0.0, "Digite o salário bruto, fmt 1000.10")
+	lucro := flag.Float64("lucro", 0.0, "Digite a retirada via lucro, fmt 1000.10")
 
 	flag.Parse()
 
@@ -38,6 +39,7 @@ description = "Calculadora de salário."
 -help			Exibe esta ajuda
 -gen-config		Cria um arquivo de configuração .toml
 -salario		Passe o valor do salário bruto CLT
+-lucro			Passe o valor para retirada via lucro - INSS minímo
 
 Deve possuir o arquivo 'calc.toml' configurado
 
@@ -54,53 +56,105 @@ url = "https://github.com/lucaslimafernandes/clt-pj-calc"
 	}
 
 	c := utilities.ReadToml()
-	handler(*salBrt, c)
+	handler(*salBrt, *lucro, c)
 
 }
 
 // Manipulador Handler
-func handler(salBrt float64, cfg *utilities.Cfg) {
+func handler(salBrt, lucro float64, cfg *utilities.Cfg) {
 
-	inssContrib := utilities.CalcINSS(salBrt)
-	irpfContrib := utilities.CalcIRPF(1, salBrt, inssContrib)
+	var r Relatorio
 
-	ferias := utilities.Round2(salBrt * 0.09)
-	umTercFerias := utilities.Round2(salBrt * 0.03)
-	decimoTerc := utilities.Round2(salBrt * 0.09)
-	fgts := utilities.Round2(salBrt * 0.08)
-	planoSaude := cfg.CustosFixos["planoSaude"]
-	valeRefeicao := cfg.CustosFixos["valeRefeicao"]
-	contabilidade := cfg.CustosFixos["contabilidade"]
+	if salBrt > 0 {
 
-	salLiq := utilities.Round2(salBrt - inssContrib - irpfContrib)
+		inssContrib := utilities.CalcINSS(salBrt)
+		irpfContrib := utilities.CalcIRPF(1, salBrt, inssContrib)
 
-	totalDespesas := ferias + umTercFerias + decimoTerc + fgts + planoSaude + valeRefeicao + contabilidade
+		ferias := utilities.Round2(salBrt * 0.09)
+		umTercFerias := utilities.Round2(salBrt * 0.03)
+		decimoTerc := utilities.Round2(salBrt * 0.09)
+		fgts := utilities.Round2(salBrt * 0.08)
+		planoSaude := cfg.CustosFixos["planoSaude"]
+		valeRefeicao := cfg.CustosFixos["valeRefeicao"]
+		contabilidade := cfg.CustosFixos["contabilidade"]
 
-	reservas := 0.0
-	for _, v := range cfg.Reservas {
-		if v <= 1.0 {
-			reservas += salBrt * v
-		} else {
-			reservas += v
+		salLiq := utilities.Round2(salBrt - inssContrib - irpfContrib)
+
+		totalDespesas := ferias + umTercFerias + decimoTerc + fgts + planoSaude + valeRefeicao + contabilidade
+
+		reservas := 0.0
+		for _, v := range cfg.Reservas {
+			if v <= 1.0 {
+				reservas += salBrt * v
+			} else {
+				reservas += v
+			}
 		}
-	}
 
-	fat := salBrt + totalDespesas
-	liqPJ := fat - totalDespesas
-	impPJ := fat * 0.093
+		fat := salBrt + totalDespesas
+		liqPJ := fat - totalDespesas
+		impPJ := fat * 0.093
 
-	r := Relatorio{
-		salarioCLT:    salBrt,
-		contribINSS:   inssContrib,
-		ImpostoIRPF:   irpfContrib,
-		liquidoCLT:    salLiq,
-		reservas:      reservas,
-		faturamentoPJ: fat,
-		liquidoPJ:     liqPJ,
-		totalDespesas: totalDespesas,
-		custosPJ:      contabilidade,
-		impostosPJ:    impPJ,
-		cfg:           cfg,
+		r = Relatorio{
+			salarioCLT:    salBrt,
+			contribINSS:   inssContrib,
+			ImpostoIRPF:   irpfContrib,
+			liquidoCLT:    salLiq,
+			reservas:      reservas,
+			faturamentoPJ: fat,
+			liquidoPJ:     liqPJ,
+			totalDespesas: totalDespesas,
+			custosPJ:      contabilidade,
+			impostosPJ:    impPJ,
+			cfg:           cfg,
+		}
+
+	} else if lucro > 0.0 {
+
+		inssContrib := utilities.CalcINSS(cfg.PJ["prolabore_min"])
+		irpfContrib := utilities.CalcIRPF(1, cfg.PJ["prolabore_min"], inssContrib)
+
+		base := lucro - cfg.PJ["prolabore_min"]
+
+		ferias := utilities.Round2(base * 0.09)
+		umTercFerias := utilities.Round2(base * 0.03)
+		decimoTerc := utilities.Round2(base * 0.09)
+		fgts := utilities.Round2(base * 0.08)
+		planoSaude := cfg.CustosFixos["planoSaude"]
+		valeRefeicao := cfg.CustosFixos["valeRefeicao"]
+		contabilidade := cfg.CustosFixos["contabilidade"]
+
+		salLiq := utilities.Round2(cfg.PJ["prolabore_min"] - inssContrib - irpfContrib)
+
+		totalDespesas := ferias + umTercFerias + decimoTerc + fgts + planoSaude + valeRefeicao + contabilidade
+
+		reservas := 0.0
+		for _, v := range cfg.Reservas {
+			if v <= 1.0 {
+				reservas += salBrt * v
+			} else {
+				reservas += v
+			}
+		}
+
+		fat := base + totalDespesas
+		liqPJ := fat - totalDespesas
+		impPJ := fat * 0.093
+
+		r = Relatorio{
+			salarioCLT:    salBrt,
+			contribINSS:   inssContrib,
+			ImpostoIRPF:   irpfContrib,
+			liquidoCLT:    salLiq + lucro,
+			reservas:      reservas,
+			faturamentoPJ: fat,
+			liquidoPJ:     liqPJ,
+			totalDespesas: totalDespesas,
+			custosPJ:      contabilidade,
+			impostosPJ:    impPJ,
+			cfg:           cfg,
+		}
+
 	}
 
 	relatorio(&r)
