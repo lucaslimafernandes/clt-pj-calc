@@ -42,6 +42,7 @@ Exemplo:
 [PJ]
 simples = 0.06
 inss = 0.033
+prolabore_min = 1412.00
 
 [PF]
 dependentes = 1.00
@@ -64,6 +65,7 @@ Parâmetros:
 [PJ]
 - simples: alíquota do Simples Nacional aplicada sobre o faturamento.
 - inss: contribuição do INSS sobre o pró-labore.
+- prolabore_min: pró‑labore mínimo mensal para INSS (ex.: salário mínimo), ao usar retirada via lucro
 
 [PF]
 - dependentes: número de dependentes para dedução do IRPF.
@@ -77,10 +79,25 @@ Parâmetros:
 
 ## Uso
 
+### Flags
+
+```bash
+-help           Exibe a ajuda embutida no binário
+-gen-config     Gera um calc.toml padrão
+-salario        (CLT) Salário bruto alvo (ex.: -salario 8500)
+-lucro          (PJ)  Retirada via lucro desejada; usa pró‑labore mínimo (ex.: -lucro 6000)
+```
+
 Rodar a aplicação passando o salário bruto CLT:
 
 ```bash
 go run main.go -salario 7500
+```
+
+Rodar a aplicação passando retirada via lucro e pró-labore mínimo:
+
+```bash
+go run main.go -lucro 7500
 ```
 
 Também é possível exibir a ajuda:
