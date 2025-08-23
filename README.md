@@ -60,6 +60,7 @@ emergencia = 0.0
 ```
 
 Parâmetros:
+
 [PJ]
 - simples: alíquota do Simples Nacional aplicada sobre o faturamento.
 - inss: contribuição do INSS sobre o pró-labore.
@@ -99,6 +100,7 @@ calc.toml: arquivo de configuração de custos e impostos.
 ## Contribua
 
 Contribuições são bem-vindas.
+
 Para colaborar:
 
 1. Faça um fork do repositório.
